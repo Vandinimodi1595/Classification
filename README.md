@@ -1,6 +1,6 @@
 
 
-# Classification - Data Mining
+# Data Mining
 
 <div id="top"></div>
 
