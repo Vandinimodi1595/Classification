@@ -1,8 +1,13 @@
 #Decision Tree Classifier vs Random Forest Classifier
 
+import graphviz
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.image as mpimg
+import pydotplus
+import graphviz
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn import tree
@@ -10,6 +15,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split, GridSearchCV
+from dtreeviz.trees import dtreeviz  # remember to load the package
+from sklearn.datasets import load_iris
+from  io import StringIO
 import seaborn as sns
 sns.set()
 import warnings
@@ -20,7 +28,7 @@ warnings.filterwarnings("ignore")
 
 
 if __name__=='__main__':
-    df = pd.read_csv('drug200.csv')
+    df = pd.read_csv('/Users/vandinimodi/Desktop/Sem3/CPSC8650DataMining/Git/DecisionTreeClassifier/drug200.csv')
     #various way of data exploration
     print(df.info())
     print(df.shape)
@@ -76,12 +84,12 @@ if __name__=='__main__':
 
     #data visualization from given data
     sns.pairplot(data=df1, hue='Drug', palette='pink')
-    plt.show()
+    #plt.show()
 
     plt.figure(figsize=(8, 8))
     sns.heatmap(df1.corr(), annot=True, fmt='.3f', cmap='BuPu_r')
     plt.title("CORRELATION BETWEEN FEATURES", fontsize=18, color='black', pad=20)
-    plt.show()
+    #plt.show()
 
     #setup decision tree
     x_train, x_test, y_train, y_test = train_test_split(df.drop(['Drug'], axis=1), df['Drug'], train_size=0.7,random_state=11)
@@ -105,9 +113,11 @@ if __name__=='__main__':
     best_param = {'criterion': ['gini','entropy'], 'max_depth' : [2,3,4]}
     grid_search = GridSearchCV(estimator=DecisionTreeClassifier(),param_grid=best_param,cv=5)
     grid_search.fit(x_train,y_train)
+    print("-------------------------------------------")
     print("grid search parameters and estimators are:")
     print(grid_search.best_params_)
     print(grid_search.best_estimator_)
+    print("-------------------------------------------")
 
     #testing with best parameters
     tuned_pt = dt.predict(x_test)
@@ -120,6 +130,48 @@ if __name__=='__main__':
     #prediction RFC
     rfc_pt = rfc.predict(x_test)
     print("Accuracy for Random Forest Classifier is:",accuracy_score(y_test,rfc_pt))
+
+    #visulizing decision tree structure
+    #text representation
+    text_representation = tree.export_text(dt)
+    #print(text_representation)
+
+    #graphviz
+    dot_data = StringIO()
+    filename = "dt.png"
+    featureNames = df.columns[0:5]
+    targetnames = df.drop(['Age','Sex', 'BP', 'Cholesterol','Na_to_K'], axis=1)
+    df['Drug'].unique()
+    dot_data = StringIO()
+    filename = "drugtree.png"
+    featureNames = df.columns[0:5]
+    df['Drug'].unique()
+
+    np.unique(y_train)
+    iris = load_iris()
+    #tree.export_graphviz(dt)
+    df.columns.values[:5]  #['Age' 'Sex' 'BP' 'Cholesterol' 'Na_to_K']
+    dot = tree.export_graphviz(dt, out_file=None,
+                               feature_names=df.columns.values[:5],
+                               class_names=["4", "3","2","0","1"],
+                               filled=True, rounded=True,
+                               special_characters=True)
+
+    # we create a graph from dot source using graphviz.Source
+    graph = graphviz.Source(dot)
+    #print(graph)
+
+    dot_data = StringIO()
+    filename = "drugtree.png"
+    featureNames = df.columns[0:5]
+    out = tree.export_graphviz(dt, feature_names=df.columns.values[:5], out_file=dot_data,
+                               class_names=["4", "3","2","0","1"], filled=True, special_characters=True, rotate=False)
+    graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+    graph.write_png(filename)
+    img = mpimg.imread(filename)
+    plt.figure(figsize=(100, 200))
+    plt.imshow(img, interpolation='nearest')
+
 
 
 
