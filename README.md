@@ -45,11 +45,11 @@ Any suggestion to improve the accuracy of classifier is appreciated.
 
 ## Acknowledgment
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ## Contact
+
 Link: https://github.com/Vandinimodi1595/Classification
 
 <p align="right">(<a href="#top">back to top</a>)</p>
